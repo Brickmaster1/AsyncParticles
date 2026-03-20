@@ -17,8 +17,6 @@ import com.imeetake.effects.SparksSoul.SoulFireImprovements;
 import com.imeetake.effects.SteamEffect.SteamEffect;
 import com.imeetake.effects.WaterDrip.WaterDripEffect;
 import fun.qu_an.minecraft.asyncparticles.client.task.EndTickEvent;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,8 +42,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 	BubblePotsEffect.class,
 })
 public abstract class MixinAllEffects {
-	@Redirect(method = "register", remap = false, at = @At(value = "INVOKE", remap = false, target = "Lnet/fabricmc/fabric/api/event/Event;register(Ljava/lang/Object;)V"))
+	/*@Redirect(method = "register", remap = false, at = @At(value = "INVOKE", remap = false, target = "Lnet/fabricmc/fabric/api/event/Event;register(Ljava/lang/Object;)V"))
 	private static void register(Event<?> instance, Object t) {
 		EndTickEvent.register(((ClientTickEvents.EndTick) t)::onEndTick);
-	}
+	}*/
 }

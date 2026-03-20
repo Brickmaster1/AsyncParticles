@@ -18,7 +18,7 @@ import pigcart.particlerain.particle.CustomParticle;
 
 @Mixin(CustomParticle.class)
 public abstract class MixinCustomParticle implements ParticleRainAddon {
-	@WrapOperation(method = "testForCollisions", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
+	@WrapOperation(method = "tickCollisions", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
 	protected BlockHitResult wrapClip(ClientLevel level,
 									  ClipContext clipContext,
 									  Operation<BlockHitResult> original,

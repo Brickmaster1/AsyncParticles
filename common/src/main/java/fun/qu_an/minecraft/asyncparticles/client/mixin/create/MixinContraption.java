@@ -28,7 +28,7 @@ public class MixinContraption implements ContraptionAddon {
 	@Shadow(remap = false)
 	protected Map<BlockPos, StructureTemplate.StructureBlockInfo> blocks;
 	@Shadow(remap = false)
-	protected ContraptionWorld world;
+	protected ContraptionWorld collisionLevel;
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	@Shadow(remap = false) public Optional<List<AABB>> simplifiedEntityColliders;
 	@Unique
@@ -42,12 +42,12 @@ public class MixinContraption implements ContraptionAddon {
 		"lambda$gatherBBsOffThread$25()Ljava/util/List;",
 		"lambda$gatherBBsOffThread$26()Ljava/util/List;"
 	}, at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/world/phys/shapes/VoxelShape;toAabbs()Ljava/util/List;"))
+		target = "Lnet/minecraft/world/phys/shapes/VoxelShape;toAabbs()Ljava/util/List;"), require = 0)
 	private List<AABB> optimizeVoxelShape(VoxelShape instance, Operation<List<AABB>> original) {
 		return original.call(instance);
 	}
 
-	@WrapOperation(method = "gatherBBsOffThread", remap = false, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;thenAccept(Ljava/util/function/Consumer;)Ljava/util/concurrent/CompletableFuture;"))
+	@WrapOperation(method = "gatherBBsOffThread", remap = false, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;thenAccept(Ljava/util/function/Consumer;)Ljava/util/concurrent/CompletableFuture;"), require = 0)
 	private CompletableFuture<Void> gatherBBsOffThread(CompletableFuture<?> instance, Consumer<?> action, Operation<CompletableFuture<Void>> original) {
 		return original.call(instance, action).thenRun(() -> {
 			asyncparticles$aabbs = null;
@@ -70,7 +70,7 @@ public class MixinContraption implements ContraptionAddon {
 			for (Map.Entry<BlockPos, StructureTemplate.StructureBlockInfo> entry : blocks.entrySet()) {
 				StructureTemplate.StructureBlockInfo info = entry.getValue();
 				BlockPos localPos = entry.getKey();
-				VoxelShape collisionShape = info.state().getCollisionShape(this.world, localPos, CollisionContext.empty());
+				VoxelShape collisionShape = info.state().getCollisionShape(this.collisionLevel, localPos, CollisionContext.empty());
 				if (!collisionShape.isEmpty()) {
 					aabbs.addAll(collisionShape.move(localPos.getX(), localPos.getY(), localPos.getZ()).toAabbs());
 				}

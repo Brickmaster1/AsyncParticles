@@ -18,13 +18,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pigcart.particlerain.WeatherParticleManager;
-import pigcart.particlerain.config.ConfigData;
+import pigcart.particlerain.ParticleSpawner;
+import pigcart.particlerain.config.ParticleData;
 import pigcart.particlerain.config.Whitelist;
 import pigcart.particlerain.particle.CustomParticle;
 import pigcart.particlerain.particle.StreakParticle;
 
-@Mixin(WeatherParticleManager.class)
+@Mixin(ParticleSpawner.class)
 public class MixinWeatherParticleManager {
 	@Group(name = "createCompat_tickSkyFX", min = 1, max = 1)
 	@Inject(method = "tickSkyFX", at = @At(value = "FIELD", remap = false,
@@ -83,21 +83,30 @@ public class MixinWeatherParticleManager {
 		canSpawn.set(value);
 	}
 
-	@ModifyExpressionValue(method = {"tickSurfaceFX", "tickSkyFX"}, at = @At(value = "FIELD", remap = false,
-		target = "Lpigcart/particlerain/config/ConfigData$ParticleData;enabled:Z"))
-	private static boolean modifyEnabled(boolean original,
-										 @Local ConfigData.ParticleData opts,
-										 @Share("canSpawn") LocalBooleanRef canSpawn) {
+	@ModifyExpressionValue(
+            method = {"tickSurfaceFX", "tickSkyFX"},
+            at = @At(
+                    value = "FIELD",
+                    remap = false,
+		            target = "Lpigcart/particlerain/config/ParticleData;enabled:Ljava/lang/Boolean;"
+            )
+    )
+	private static Boolean modifyEnabled(Boolean original, @Local ParticleData opts, @Share("canSpawn") LocalBooleanRef canSpawn) {
 		return original && (!opts.needsSkyAccess || canSpawn.get());
 	}
 
-	@WrapOperation(method = "tickBlockFX", at = @At(value = "NEW",
-		target = "(Lnet/minecraft/client/multiplayer/ClientLevel;DDDLpigcart/particlerain/config/ConfigData$ParticleData;)Lpigcart/particlerain/particle/CustomParticle;"))
+	@WrapOperation(
+            method = "tickBlockFX",
+            at = @At(
+                    value = "NEW",
+		            target = "(Lnet/minecraft/client/multiplayer/ClientLevel;DDDLpigcart/particlerain/config/ParticleData;)Lpigcart/particlerain/particle/CustomParticle;"
+            )
+    )
 	private static CustomParticle onTickBlockFX(ClientLevel level,
 												double x,
 												double y,
 												double z,
-												ConfigData.ParticleData opts,
+												ParticleData opts,
 												Operation<CustomParticle> original) {
 		if (!opts.needsSkyAccess || CreateCompat.canSpawnWeatherParticle(level, x, y, z)) {
 			return original.call(level, x, y, z, opts);
@@ -115,7 +124,7 @@ public class MixinWeatherParticleManager {
 												Direction direction,
 												Whitelist.BlockList blockList,
 												Operation<StreakParticle> original,
-												@Local(ordinal = 0) ConfigData.ParticleData opts) {
+												@Local(ordinal = 0) ParticleData opts) {
 		if (!opts.needsSkyAccess || CreateCompat.canSpawnWeatherParticle(level, x, y, z)) {
 			return original.call(level, x, y, z, direction, blockList);
 		} else {
@@ -140,7 +149,7 @@ public class MixinWeatherParticleManager {
 										 double h,
 										 double i,
 										 @Local(ordinal = 0) ClientLevel level,
-										 @Local(ordinal = 0) ConfigData.ParticleData opts) {
+										 @Local(ordinal = 0) ParticleData opts) {
 		return !opts.needsSkyAccess || CreateCompat.canSpawnWeatherParticle(level, x, y, z);
 	}
 }

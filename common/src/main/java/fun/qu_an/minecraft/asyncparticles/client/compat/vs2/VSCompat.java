@@ -35,7 +35,7 @@ public class VSCompat {
 
 	public static boolean isCollisionBoxTooBig(AABB aabb) {
 		if (ModListHelper.IS_LEGACY_VS) {
-			return BugFixUtil.INSTANCE.isCollisionBoxToBig(aabb);
+			return BugFixUtil.INSTANCE.isCollisionBoxTooBig(aabb);
 		} else {
 			try {
 				return (boolean) isCollisionBoxTooBig.invokeExact(aabb);

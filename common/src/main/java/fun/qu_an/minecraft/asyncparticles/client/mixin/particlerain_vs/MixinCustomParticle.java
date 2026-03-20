@@ -16,18 +16,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pigcart.particlerain.config.ConfigData;
+import pigcart.particlerain.config.ParticleData;
 import pigcart.particlerain.particle.CustomParticle;
 
 @Mixin(CustomParticle.class)
 public abstract class MixinCustomParticle extends MixinWeatherParticle implements ParticleRainAddon {
 	@Shadow(remap = false)
-	public ConfigData.ParticleData opts;
+	public ParticleData opts;
 
 	protected MixinCustomParticle(ClientLevel clientLevel, double d, double e, double f) {
 		super(clientLevel, d, e, f);
 	}
 
-	@Redirect(method = "testForCollisions", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
+	@Redirect(method = "tickCollisions", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
 	protected BlockHitResult redirectClip(ClientLevel level,
 										  ClipContext clipContext,
 										  @Local(ordinal = 0) Vec3 quadCenterPos,
